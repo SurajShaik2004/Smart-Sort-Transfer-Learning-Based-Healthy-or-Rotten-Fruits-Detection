@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NutriGaze</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <header>
+        <div class="container">
+            <div class="logo">NUTRIGAZE</div>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#predict">Predict</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Home -->
+    <section id="home" class="hero">
+        <div class="overlay">
+            <p class="welcome">Welcome to <strong>NutriGaze</strong></p>
+            <h1 class="headline">GREENGUARD INSIGHTS</h1>
+            <p class="subtext">We are a team of innovative scientists and technologists dedicated to ensuring your
+                produce is always fresh and healthy.</p>
+            <button class="cta-btn">GET STARTED</button>
+        </div>
+    </section>
+
+    <!-- About -->
+    <section id="about" class="about">
+        <h2>Learn More <span class="highlight">About Us</span></h2>
+        <p class="about-text">
+            NutriGaze is a pioneering organization dedicated to enhancing the quality and safety of your fruits and
+            vegetables.
+        </p>
+        <div class="about-content">
+            <div class="about-columns">
+                <ul>
+                    <li>✔️ Comprehensive analysis and grading of fruits and vegetables.</li>
+                    <li>✔️ Continuous monitoring of produce freshness from farm to table.</li>
+                    <li>✔️ Innovative solutions to minimize food waste early in the supply chain.</li>
+                </ul>
+                <p>
+                    Our team is a diverse group of experts in agricultural science, data analytics, software
+                    engineering, and food technology.
+                    Together, we bring the knowledge and experience to tackle food safety challenges.
+                </p>
+            </div>
+            <div class="about-btn-wrapper">
+                <button class="cta-btn-outline">Learn More</button>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Predict -->
+    <section id="predict" class="predict full-page-section">
+        <h2>Image Classification</h2>
+        <form class="upload-form" id="uploadForm" enctype="multipart/form-data">
+            <label for="imageUpload">Upload Your Image:</label><br />
+            <input type="file" id="imageUpload" name="image" accept="image/*" required><br />
+            <button type="submit" class="predict-btn">predict</button>
+        </form>
+
+    </section>
+
+    <!-- Result (Initially Hidden) -->
+    <section id="result" class="result hidden">
+        <h2>FreshEye Detection</h2>
+        <div class="result-box">
+            <img id="result-image" src="" alt="Uploaded Fruit/Vegetable" />
+            <p id="prediction-text"></p>
+        </div>
+    </section>
+
+
+    <!-- Contact / Footer -->
+    <footer id="contact" class="footer">
+        <div class="footer-content">
+            <h3>Contact Us</h3>
+            <p>📧 support@nutrigaze.com</p>
+            <p>📧 team@nutrigaze.com</p>
+            <p>📍 RGUKT Srikakulam, Andhra Pradesh, India</p>
+            <p>© 2025 NutriGaze. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        const form = document.getElementById("uploadForm");
+        const resultSection = document.getElementById("result");
+        const resultImage = document.getElementById("result-image");
+        const predictionText = document.getElementById("prediction-text");
+
+        form.addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            const fileInput = document.getElementById("imageUpload");
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert("Please upload an image.");
+                return;
+            }
+
+            // Preview the image
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                resultImage.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+
+            // Send to backend
+            const formData = new FormData();
+            formData.append("image", file);
+
+            try {
+                const response = await fetch("/predict", {
+                    method: "POST",
+                    body: formData,
+                });
+
+                const data = await response.json();
+                predictionText.textContent = data.prediction || "Prediction failed.";
+                resultSection.classList.remove("hidden");
+                resultSection.scrollIntoView({ behavior: "smooth" });
+
+            } catch (error) {
+                alert("Error connecting to prediction service.");
+                console.error(error);
+            }
+        });
+    </script>
+
+
+</body>
+
+</html>
